@@ -3,17 +3,16 @@ from gym.spaces import  Discrete
 from gym.utils import seeding
 import numpy as np
 import random
-from scipy.stats import bernoulli
-from matplotlib import pyplot as plt
 
 class env(Env):
     
-    def __init__(self,HT,maxTime):
+    def __init__(self,TT,maxTime):
         # action space harvest =0,leave=1
         self.action_space = Discrete(2)
         # setting time to 0
         self.time=0
-        self.harvestTime=HT
+        self.n = 0
+        self.travelTime=TT #travel time is a function of the environment
         self.maxTime=maxTime
         self.seed()
 
@@ -21,23 +20,30 @@ class env(Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action):
+    def step(self, action, patch_quality):
         info={}
+        # harvest time includes decision time and harvest time
+        # decision time is 1 +/- 0.6 sec and harvest takes no time.
+        self.harvestTime = random.uniform(0.4,1.6) 
         if action == 0:
             if self.time+self.harvestTime<=self.maxTime:
                 self.time+=self.harvestTime
-                reward=7-0.5*self.n+self.np_random.normal(0,0.025)
                 self.n+=1
+                if patch_quality=="rich":
+                    # for rich patch the maximum reward is a uniform random variable which takes value random value from [10,11,12,13,14] 
+                    reward=random.randint(10,15)-0.5*self.n+self.np_random.normal(0,0.025)
+                else:
+                    # for poor patch the maximum reward is a uniform random variable which takes value random value from [2,3,4,5,6]
+                    reward=random.randint(2,7)-0.5*self.n+self.np_random.normal(0,0.025)
                 done=False
             else:
                 reward=0
                 done=True
                 
         else :
-            travel_time=self.np_random.choice([3,10])
-            if self.time+travel_time<self.maxTime:
+            if self.time+self.travelTime<self.maxTime:
                 self.n=0  
-                self.time+=travel_time
+                self.time+=self.travelTime
                 reward=0
                 done=False
             else:
