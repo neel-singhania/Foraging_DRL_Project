@@ -5,7 +5,7 @@ import random
 from gym.utils import seeding
 
 
-class Foraging(gym.Env):
+class ForagingRichPoorPatch(gym.Env):
 
     def __init__(self, interval_time=10, total_time=4) -> None:
         '''Constructor for our environment. Should take any relevant parameters as arguments.
@@ -16,8 +16,24 @@ class Foraging(gym.Env):
         self.reset()
         self.seed()
         self.interval_time = interval_time
+        # have to recheck this harvest(decision) time with mentors
         self.decision_times = [1, 2, 3, 4]
         self.total_time = total_time*60
+    
+    def reset(self) :
+        '''What to do if we reset the environment.
+        '''
+        # In our case simply reset the current state back to start state.
+        self.state = 0
+        self.elapsed_time = 0
+        # introduced concept of a rich and poor patch by varying the starting reward from 2 to 14
+        self.patchStartReward=self.np_random.choice((np.arange(2,15)))
+        done=False
+        return self.state,done
+    
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def step(self, action: int):
         '''Defines what to do if an action is taken.
@@ -41,34 +57,20 @@ class Foraging(gym.Env):
             if self.elapsed_time + decision_time > self.total_time:
                 done=True
             else:
-                reward = 7 - 0.5*self.state + self.np_random.normal(0,0.025,1)
+                reward = self.patchStartReward - 0.5*self.state + self.np_random.normal(0,0.025,1)
                 self.state += 1
                 self.elapsed_time += decision_time
         else:
             if self.elapsed_time + self.interval_time > self.total_time:
                 done=True
             else:
+                self.patchStartReward=self.np_random.choice((np.arange(2,15)))
                 self.state = 0
                 self.elapsed_time += self.interval_time
         
         # Return the next state, reward, episode end signal and an information object which could contain anything. We
         # don't have any additional info to return so we return None.
         return self.state, reward, done, None
-
-    def reset(self) :
-        '''What to do if we reset the environment.
-        '''
-        # In our case simply reset the current state back to start state.
-        self.state = 0
-        self.elapsed_time = 0
-        done=False
-        return self.state,done
     
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def render(self):
         pass
-
-
