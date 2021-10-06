@@ -75,8 +75,8 @@ class ForagingRichPoorPatch(gym.Env):
                 self.elapsed_time += self.interval_time
         
         # Return the next state, reward, episode end signal and an information object which could contain anything. We
-        # don't have any additional info to return so we return None.
-        return self.state, reward, done, None
+        
+        return self.state, reward, done
     
     def render(self):
         pass
