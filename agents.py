@@ -2,6 +2,7 @@ import gym
 from gym import spaces
 import numpy as np
 import random
+import math
 import sys 
 sys.path.append('../')
 
@@ -65,9 +66,7 @@ def PureExploitation(env,params):
         Q_est[e] = Q
         env.reset()
     return R
-
 # print(PureExploitation(env,params))
-
 def PureExploration(env,params):
     # print("PureExploration")
     Q = np.zeros(len(params["arms"]))
@@ -179,4 +178,40 @@ def decayingEpsilonGreedy(env,params,type):
         Q_est[e] = Q
         env.reset()
     return R
-print(decayingEpsilonGreedy(env,params,"exp"))
+# print(decayingEpsilonGreedy(env,params,"exp"))
+def UCBexploration(env,params):
+    # print("UCBexploration")
+    Q = np.zeros(len(params["arms"]))
+    N = np.zeros(len(params["arms"]))
+    e = 0
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])))
+    R=np.zeros((params["maxEpisodes"]))
+    # actions=np.zeros((params["maxEpisodes"]))
+    env.reset()
+    while e < params["maxEpisodes"] - 1:
+        if e< len(Q):
+            harvest = e
+        else:
+            U= params["c_UCB"]* math.sqrt(math.log(e))/np.sqrt(N)
+            UCB = np.add(Q,U)
+            max_indices=np.where(UCB==np.amax(UCB))
+            harvest = random.choice(max_indices[0])+1
+        print(harvest)
+        done=False
+        r=0
+        while not done:
+            for i in range (harvest):
+                if not done:
+                    end_state, reward, done, info = env.step(1)
+                    r+=reward
+            if not done:
+                end_state, reward, done, info = env.step(0)
+        N[harvest-1] = N[harvest-1] + 1
+        Q[harvest-1] = Q[harvest-1] + (r-Q[harvest-1])/N[harvest-1]
+        e = e+1
+        Q_est[e] = Q
+        R[e] =reward
+        
+        env.reset()
+    return R
+print(UCBexploration(env,params))
