@@ -9,13 +9,13 @@ from foraging import Foraging
 
 
 params={}
-params["maxEpisodes"]=50
-params["epsilon"]=0.1
+params["maxEpisodes"]=100
+params["epsilon"]=0.3
 params["initial_epsilon"]=1.0
 params["final_epsilon"]={}
 params["decay_rate"]={}
 params["final_epsilon"]['lin']=0.0
-params["final_epsilon"]['exp']=0.5
+params["final_epsilon"]['exp']=0.1
 params["decay_rate"]['lin']=(params["initial_epsilon"]-params["final_epsilon"]['lin'])/params["maxEpisodes"]
 params["decay_rate"]['exp']=np.log(params["initial_epsilon"]/params["final_epsilon"]['exp'])/params["maxEpisodes"]
 params["c_UCB"]=0.1
@@ -38,6 +38,7 @@ def PureExploitation(env,params):
     Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])))
     R=np.zeros((params["maxEpisodes"]))
     # actions=np.zeros((params["maxEpisodes"]))
+    h = []
     env.reset()
     while e < params["maxEpisodes"]-1 :
         max_indices=np.where(Q==np.amax(Q))
@@ -64,7 +65,7 @@ def PureExploitation(env,params):
         e = e+1
         Q_est[e] = Q
         env.reset()
-    return R
+    return Q_est,R
 
 # print(PureExploitation(env,params))
 
@@ -137,24 +138,25 @@ def epsilonGreedy(env,params):
         Q_est[e] = Q
         env.reset()
     return R
-# print(epsilonGreedy(env,params))
+print(epsilonGreedy(env,params))
 def decayingEpsilonGreedy(env,params,type):
     # print("decayingEpsilonGreedy")
-    Q = np.zeros(len(params["arms"]))
-    N = np.zeros(len(params["arms"]))
+    Q = np.zeros(50)
+    N = np.zeros(50)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])))
+    Q_est = np.zeros((params["maxEpisodes"],50))
     R=np.zeros((params["maxEpisodes"]))
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
-    epsilon=params["epsilon"]
+    epsilon=params["initial_epsilon"]
     while e < params["maxEpisodes"]-1 :
         if random.random() > epsilon:
             max_indices=np.where(Q==np.amax(Q))
+            # print(epsilon,e,max_indices[0])
             harvest = random.choice(max_indices[0])
         else :
-            harvest= random.choice(np.arange(1,len(Q)+1))
-        print(harvest)
+            harvest= random.choice(np.arange(1,len(Q)))
+        # print(harvest)
         done=False
         r=0
         while not done:
@@ -166,8 +168,8 @@ def decayingEpsilonGreedy(env,params,type):
                 end_state, reward, done, info = env.step(0)
         #     print(r,reward)   
         # print(r)
-        N[harvest-1] = N[harvest-1] + 1
-        Q[harvest-1] = Q[harvest-1] + (r-Q[harvest-1])/N[harvest-1]
+        N[harvest] = N[harvest] + 1
+        Q[harvest] = Q[harvest] + (r-Q[harvest])/N[harvest]
         
         if type=='lin':
             epsilon=epsilon-params["decay_rate"]['lin']
@@ -179,4 +181,4 @@ def decayingEpsilonGreedy(env,params,type):
         Q_est[e] = Q
         env.reset()
     return R
-print(decayingEpsilonGreedy(env,params,"exp"))
+# print(decayingEpsilonGreedy(env,params,"exp"))
