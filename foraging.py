@@ -42,7 +42,7 @@ class Foraging(gym.Env):
             if self.elapsed_time + decision_time > self.total_time:
                 done=True
             else:
-                reward = 5 - 0.5*self.state + self.np_random.normal(0,0.025,1)
+                reward = 7 - 0.5*self.state + self.np_random.normal(0,0.025,1)
                 # reward = 7 - 0.5*self.state 
                 self.state += 1
                 self.elapsed_time += decision_time

@@ -11,7 +11,7 @@ from foraging import Foraging
 
 
 params={}
-params["maxEpisodes"]=1000
+params["maxEpisodes"]=10
 params["epsilon"]=0.3
 params["initial_epsilon"]=1.0
 params["final_epsilon"]={}
@@ -28,9 +28,15 @@ params["temp_decay_rate_exp"]=np.log(params["init_temp"]/params["final_temp"])/p
 params["no_envs"]=50
 params["decay_type_decaying_epsilon"]="lin"
 params["decay_type_Softmax_exploration"]="exp"
-params["arms"]=np.arange(1,20)
+params["arms"]=np.arange(1,16)
 
 env=Foraging()
+# env.reset()
+# end_state, reward, done, info = env.step(1)
+# while(reward>0):
+#     end_state, reward, done, info = env.step(1)
+# print(end_state)
+# env.reset()
 envs=[]
 for i in range(50):
     envs.append(Foraging())
@@ -146,10 +152,10 @@ def epsilonGreedy(env,params):
 # print(epsilonGreedy(env,params))
 def decayingEpsilonGreedy(env,params,type):
     # print("decayingEpsilonGreedy")
-    Q = np.zeros(20)
-    N = np.zeros(20)
+    Q = np.zeros(16)
+    N = np.zeros(16)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],20))
+    Q_est = np.zeros((params["maxEpisodes"],16))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
@@ -189,15 +195,15 @@ def decayingEpsilonGreedy(env,params,type):
 # print(decayingEpsilonGreedy(env,params,"exp"))
 def UCBexploration(env,params):
     # print("UCBexploration")
-    Q = np.zeros(21)
-    N = np.ones(21)
+    Q = np.zeros(17)
+    N = np.ones(17)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],21))
+    Q_est = np.zeros((params["maxEpisodes"],17))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
     while e < params["maxEpisodes"] - 1:
-        if e< 20:
+        if e< 16:
             harvest = e+1
         else:
             # if e==51:
@@ -226,97 +232,97 @@ def UCBexploration(env,params):
         
         env.reset()
     return R
-# print(UCBexploration(env,params))
+print(UCBexploration(env,params))
 
-exploit = []
-explore = []
-epsilon = []
-depsilon = []
-soft_max = []
-ucb = []
-for i in range(50):
-    env=Foraging()
-    env.seed(i+50)
-    random.seed(i+50)
-    r1 = PureExploitation(env,params)
-    r2 = PureExploration(env,params)
-    r3 = epsilonGreedy(env,params)
-    r4 = decayingEpsilonGreedy(env,params,"exp")
-    r6 = UCBexploration(env,params)
-    # print(np.shape(r1))
-    exploit.append(r1)
-    explore.append(r2)
-    epsilon.append(r3)
-    depsilon.append(r4)
-    ucb.append(r6)
+# exploit = []
+# explore = []
+# epsilon = []
+# depsilon = []
+# soft_max = []
+# ucb = []
+# for i in range(50):
+#     env=Foraging(interval_time = 10)
+#     env.seed(i+50)
+#     random.seed(i+50)
+#     r1 = PureExploitation(env,params)
+#     r2 = PureExploration(env,params)
+#     r3 = epsilonGreedy(env,params)
+#     r4 = decayingEpsilonGreedy(env,params,"exp")
+#     r6 = UCBexploration(env,params)
+#     # print(np.shape(r1))
+#     exploit.append(r1)
+#     explore.append(r2)
+#     epsilon.append(r3)
+#     depsilon.append(r4)
+#     ucb.append(r6)
 
-exploit = np.array(exploit)
-# print(np.shape(exploit))
-explore = np.array(explore)
-epsilon = np.array(epsilon)
-depsilon = np.array(depsilon)
+# exploit = np.array(exploit)
+# # print(np.shape(exploit))
+# explore = np.array(explore)
+# epsilon = np.array(epsilon)
+# depsilon = np.array(depsilon)
 
-ucb = np.array(ucb)
+# ucb = np.array(ucb)
 
-avg1 = np.average(exploit,axis=0)
-avg2 = np.average(explore,axis=0)
-avg3 = np.average(epsilon,axis=0)
-avg4 = np.average(depsilon,axis=0)
-avg6 = np.average(ucb,axis=0)
-x = np.arange(params["maxEpisodes"]-1)
+# avg1 = np.average(exploit,axis=0)
+# avg2 = np.average(explore,axis=0)
+# avg3 = np.average(epsilon,axis=0)
+# avg4 = np.average(depsilon,axis=0)
+# avg6 = np.average(ucb,axis=0)
+# x = np.arange(params["maxEpisodes"]-1)
 
-# print(np.shape(avg1))
+# # print(np.shape(avg1))
 
-plt.plot(x,avg1)
-plt.xlabel("Episodes")
-plt.ylabel("Average Reward")
-plt.title("Exploitation: Average Reward vs Episodes")
-plt.savefig('exploit.png')
-plt.show()
-plt.close()
+# plt.plot(x,avg1)
+# plt.xlabel("Episodes")
+# plt.ylabel("Average Reward")
+# plt.title("Exploitation: Average Reward vs Episodes")
+# plt.savefig('exploit.png')
+# plt.show()
+# plt.close()
 
-plt.plot(x,avg2)
-plt.savefig('explore.png')
-plt.xlabel("Episodes")
-plt.ylabel("Average Reward")
-plt.title("Exploration:Average Reward vs Episodes")
-plt.show()
-plt.close()
+# plt.plot(x,avg2)
+# plt.savefig('explore.png')
+# plt.xlabel("Episodes")
+# plt.ylabel("Average Reward")
+# plt.title("Exploration:Average Reward vs Episodes")
+# plt.show()
+# plt.close()
 
-plt.plot(x,avg3)
-plt.savefig('epsilon.png')
-plt.xlabel("Episodes")
-plt.ylabel("Average Reward")
-plt.title("Epsilon-Greedy: Average Reward vs Episodes")
-plt.show()
-plt.close()
+# plt.plot(x,avg3)
+# plt.savefig('epsilon.png')
+# plt.xlabel("Episodes")
+# plt.ylabel("Average Reward")
+# plt.title("Epsilon-Greedy: Average Reward vs Episodes")
+# plt.show()
+# plt.close()
 
-plt.plot(x,avg4)
-plt.savefig('depsilon.png') 
-plt.xlabel("Episodes")
-plt.ylabel("Average Reward")
-plt.title("decay-Epsilon Greedy: Average Reward vs Episodes")
-plt.show()
-plt.close()
+# plt.plot(x,avg4)
+# plt.savefig('depsilon.png') 
+# plt.xlabel("Episodes")
+# plt.ylabel("Average Reward")
+# plt.title("decay-Epsilon Greedy: Average Reward vs Episodes")
+# plt.show()
+# plt.close()
 
 
-plt.plot(x,avg6)
-plt.savefig('ucb.png')
-plt.xlabel("Episodes")
-plt.ylabel("Average Reward")
-plt.title("UCB: Average Reward vs Episodes")
-plt.show()
-plt.close()
+# plt.plot(x,avg6)
+# plt.savefig('ucb.png')
+# plt.xlabel("Episodes")
+# plt.ylabel("Average Reward")
+# plt.title("UCB: Average Reward vs Episodes")
+# plt.show()
+# plt.close()
 
-plt.plot(x,avg1,'b')
-plt.plot(x,avg2,'r')
-plt.plot(x,avg3,'y')
-plt.plot(x,avg4,'m')
-plt.plot(x,avg6,'g')
-plt.title("Average rewards received vs different agents")
-plt.xlabel("Epsiodes")
-plt.ylabel("Average rewards received")
-plt.legend(["Pure Exploitation","Pure Exploration","Epsilon Greedy","decay-Epsilon Greedy","UCB"], loc = "lower right")
-plt.savefig("Average rewards received vs different agents.pdf")
-plt.show()
-plt.close()
+# plt.plot(x,avg1,'b')
+# plt.plot(x,avg2,'r')
+# plt.plot(x,avg3,'y')
+# plt.plot(x,avg4,'m')
+# plt.plot(x,avg6,'g')
+# plt.title("Average rewards received vs different agents")
+# plt.xlabel("Epsiodes")
+# plt.ylabel("Average rewards received")
+# plt.legend(["Pure Exploitation","Pure Exploration","Epsilon Greedy","decay-Epsilon Greedy","UCB"], loc = "lower right")
+# plt.savefig("3 Average rewards received vs different agents.pdf")
+# plt.show()
+# plt.close()
