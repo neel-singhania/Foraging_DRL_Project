@@ -11,7 +11,7 @@ from foraging import Foraging
 
 
 params={}
-params["maxEpisodes"]=100
+params["maxEpisodes"]=1000
 params["epsilon"]=0.3
 params["initial_epsilon"]=1.0
 params["final_epsilon"]={}
@@ -34,23 +34,14 @@ params["arms"]=np.arange(1,16)
 env=Foraging()
 env.seed(40)
 
-# env.reset()
-# end_state, reward, done, info = env.step(1)
-# while(reward>0):
-#     end_state, reward, done, info = env.step(1)
-# print(end_state)
-# env.reset()
-# envs=[]
-# for i in range(50):
-#     envs.append(Foraging())
-#     envs[i].seed(i+50)
-
 def PureExploitation(env,params):
     # print("PureExploitation")
-    Q = np.zeros(len(params["arms"]+1))
-    N = np.zeros(len(params["arms"]+1))
+    Q = np.zeros(len(params["arms"])+1)
+    N = np.zeros(len(params["arms"])+1)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"]+1)))
+    # print(len(params["arms"]))
+    # print(len(N))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])+1))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     h = []
@@ -82,20 +73,28 @@ def PureExploitation(env,params):
         Q_est[e] = Q
         env.reset()
     return R,h
+    # return R
+
+# env.reset()
+# env.seed(42)
+# random.seed(42)
+# print(PureExploitation(env,params))
 
 # print(PureExploitation(env,params))
 def PureExploration(env,params):
     # print("PureExploration")
-    Q = np.zeros(len(params["arms"]+1))
-    N = np.zeros(len(params["arms"]+1))
+    Q = np.zeros(len(params["arms"])+1)
+    N = np.zeros(len(params["arms"])+1)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"]+1)))
+    # print(len(params["arms"]))
+    # print(len(N))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])+1))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
     h = []
     while e < params["maxEpisodes"]-1 :
-        harvest= random.choice(np.arange(1,len(Q)+1))
+        harvest= random.choice(np.arange(1,len(Q)))
         h.append(harvest)
         # print(harvest)
         done=False
@@ -118,13 +117,22 @@ def PureExploration(env,params):
         Q_est[e] = Q
         env.reset()
     return R,h
+    # return R
+
+# env.reset()
+# env.seed(42)
+# random.seed(42)
 # print(PureExploration(env,params))
+
+
 def epsilonGreedy(env,params):
     # print("epsilonGreedy")
-    Q = np.zeros(len(params["arms"]))
-    N = np.zeros(len(params["arms"]))
+    Q = np.zeros(len(params["arms"])+1)
+    N = np.zeros(len(params["arms"])+1)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])))
+    # print(len(params["arms"]))
+    # print(len(N))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])+1))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
@@ -157,13 +165,21 @@ def epsilonGreedy(env,params):
         Q_est[e] = Q
         env.reset()
     return R,h
+
+# env.reset()
+# env.seed(42)
+# random.seed(42)
 # print(epsilonGreedy(env,params))
+
+
 def decayingEpsilonGreedy(env,params,type):
     # print("decayingEpsilonGreedy")
-    Q = np.zeros(16)
-    N = np.zeros(16)
+    Q = np.zeros(len(params["arms"])+1)
+    N = np.zeros(len(params["arms"])+1)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],16))
+    # print(len(params["arms"]))
+    # print(len(N))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])+1))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
@@ -202,19 +218,26 @@ def decayingEpsilonGreedy(env,params,type):
         Q_est[e] = Q
         env.reset()
     return R,h
+
+# env.reset()
+# env.seed(42)
+# random.seed(42)
 # print(decayingEpsilonGreedy(env,params,"exp"))
+
 def UCBexploration(env,params):
     # print("UCBexploration")
-    Q = np.zeros(17)
-    N = np.ones(17)
+    Q = np.zeros(len(params["arms"])+1)
+    N = np.zeros(len(params["arms"])+1)
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],17))
+    # print(len(params["arms"]))
+    # print(len(N))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])+1))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
     h = []
     while e < params["maxEpisodes"] - 1:
-        if e< 16:
+        if e< len(params["arms"]):
             harvest = e+1
         else:
             # if e==51:
@@ -223,7 +246,7 @@ def UCBexploration(env,params):
             UCB = np.add(Q,U)
             max_indices=np.where(UCB==np.amax(UCB))
             harvest = random.choice(max_indices[0])
-            N[harvest] = N[harvest] + 1
+            # N[harvest] = N[harvest] + 1
         # print(harvest)
         h.append(harvest)
         done=False
@@ -236,6 +259,7 @@ def UCBexploration(env,params):
             if not done:
                 end_state, reward, done, info = env.step(0)
         # print(r)
+        N[harvest] = N[harvest] + 1
         Q[harvest] = Q[harvest] + (r-Q[harvest])/N[harvest]
         R[e] =r
         e = e+1
@@ -244,97 +268,181 @@ def UCBexploration(env,params):
         
         env.reset()
     return R,h
-print(UCBexploration(env,params))
 
-# exploit = []
-# explore = []
-# epsilon = []
-# depsilon = []
-# soft_max = []
-# ucb = []
-# for i in range(50):
-#     env=Foraging(interval_time = 10)
-#     env.seed(i+50)
-#     random.seed(i+50)
-#     r1 = PureExploitation(env,params)
-#     r2 = PureExploration(env,params)
-#     r3 = epsilonGreedy(env,params)
-#     r4 = decayingEpsilonGreedy(env,params,"exp")
-#     r6 = UCBexploration(env,params)
-#     # print(np.shape(r1))
-#     exploit.append(r1)
-#     explore.append(r2)
-#     epsilon.append(r3)
-#     depsilon.append(r4)
-#     ucb.append(r6)
+# env.reset()
+# env.seed(42)
+# random.seed(42)
+# print(UCBexploration(env,params))
 
-# exploit = np.array(exploit)
-# # print(np.shape(exploit))
-# explore = np.array(explore)
-# epsilon = np.array(epsilon)
-# depsilon = np.array(depsilon)
+exploit = []
+explore = []
+epsilon = []
+depsilon = []
+ucb = []
+exploith = []
+exploreh= []
+epsilonh = []
+depsilonh = []
+ucbh = []
+for i in range(50):
+    env=Foraging(interval_time = 3)
+    env.seed(i+50)
+    random.seed(i+50)
+    r1 = PureExploitation(env,params)
+    r2 = PureExploration(env,params)
+    r3 = epsilonGreedy(env,params)
+    r4 = decayingEpsilonGreedy(env,params,"exp")
+    r6 = UCBexploration(env,params)
+    r1,h1 = PureExploitation(env,params)
+    r2,h2 = PureExploration(env,params)
+    r3,h3 = epsilonGreedy(env,params)
+    r4,h4 = decayingEpsilonGreedy(env,params,"exp")
+    r6,h6 = UCBexploration(env,params)
+    # print(np.shape(r1))
+    exploit.append(r1)
+    explore.append(r2)
+    epsilon.append(r3)
+    depsilon.append(r4)
+    ucb.append(r6)
+    exploith.append(h1)
+    exploreh.append(h2)
+    epsilonh.append(h3)
+    depsilonh.append(h4)
+    ucbh.append(h6)
 
-# ucb = np.array(ucb)
+exploit = np.array(exploit)
+explore = np.array(explore)
+epsilon = np.array(epsilon)
+depsilon = np.array(depsilon)
+ucb = np.array(ucb)
+exploith = np.array(exploith)
+exploreh= np.array(exploreh)
+epsilonh = np.array(epsilonh)
+depsilonh = np.array(depsilonh)
+ucbh = np.array(ucbh)
+# print(np.shape(exploith))
 
-# avg1 = np.average(exploit,axis=0)
-# avg2 = np.average(explore,axis=0)
-# avg3 = np.average(epsilon,axis=0)
-# avg4 = np.average(depsilon,axis=0)
-# avg6 = np.average(ucb,axis=0)
-# x = np.arange(params["maxEpisodes"]-1)
+avg1 = np.average(exploit,axis=0)
+avg2 = np.average(explore,axis=0)
+avg3 = np.average(epsilon,axis=0)
+avg4 = np.average(depsilon,axis=0)
+avg6 = np.average(ucb,axis=0)
+avg1h = np.average(exploith,axis=0)
+avg2h = np.average(exploreh,axis=0)
+avg3h = np.average(epsilonh,axis=0)
+avg4h = np.average(depsilonh,axis=0)
+avg6h = np.average(ucbh,axis=0)
+avg1h=np.round(avg1h,0)
+avg2h=np.round(avg2h,0)
+avg3h=np.round(avg3h,0)
+avg4h=np.round(avg4h,0)
+avg6h=np.round(avg6h,0)
+x = np.arange(params["maxEpisodes"]-1)
 
-# # print(np.shape(avg1))
+# print(np.shape(avg1))
 
-# plt.plot(x,avg1)
-# plt.xlabel("Episodes")
-# plt.ylabel("Average Reward")
-# plt.title("Exploitation: Average Reward vs Episodes")
-# plt.savefig('exploit.png')
-# plt.show()
-# plt.close()
+plt.plot(x,avg1)
+plt.xlabel("Episodes")
+plt.ylabel("Average Reward")
+plt.title("Exploitation: Average Reward vs Episodes")
+plt.savefig('exploit rewards.pdf')
+plt.show()
+plt.close()
 
-# plt.plot(x,avg2)
-# plt.savefig('explore.png')
-# plt.xlabel("Episodes")
-# plt.ylabel("Average Reward")
-# plt.title("Exploration:Average Reward vs Episodes")
-# plt.show()
-# plt.close()
+plt.plot(x,avg1h)
+plt.xlabel("Episodes")
+plt.ylabel("Average No of Harvests")
+plt.title("Exploitation: Average Harvests vs Episodes")
+plt.savefig('exploit harvest.pdf')
+plt.show()
+plt.close()
 
-# plt.plot(x,avg3)
-# plt.savefig('epsilon.png')
-# plt.xlabel("Episodes")
-# plt.ylabel("Average Reward")
-# plt.title("Epsilon-Greedy: Average Reward vs Episodes")
-# plt.show()
-# plt.close()
+plt.plot(x,avg2)
+plt.xlabel("Episodes")
+plt.ylabel("Average Reward")
+plt.title("Exploration:Average Reward vs Episodes")
+plt.savefig('explore rewards.pdf')
+plt.show()
+plt.close()
 
-# plt.plot(x,avg4)
-# plt.savefig('depsilon.png') 
-# plt.xlabel("Episodes")
-# plt.ylabel("Average Reward")
-# plt.title("decay-Epsilon Greedy: Average Reward vs Episodes")
-# plt.show()
-# plt.close()
+plt.plot(x,avg2h)
+plt.xlabel("Episodes")
+plt.ylabel("Average No of Harvests")
+plt.title("Exploration: Average Harvests vs Episodes")
+plt.savefig('explore harvest.pdf')
+plt.show()
+plt.close()
 
+plt.plot(x,avg3)
+plt.xlabel("Episodes")
+plt.ylabel("Average Reward")
+plt.title("Epsilon-Greedy: Average Reward vs Episodes")
+plt.savefig('epsilon rewards.pdf')
+plt.show()
+plt.close()
 
-# plt.plot(x,avg6)
-# plt.savefig('ucb.png')
-# plt.xlabel("Episodes")
-# plt.ylabel("Average Reward")
-# plt.title("UCB: Average Reward vs Episodes")
-# plt.show()
-# plt.close()
+plt.plot(x,avg3h)
+plt.xlabel("Episodes")
+plt.ylabel("Average No of Harvests")
+plt.title("Epsilon-Greedy: Average Harvests vs Episodes")
+plt.savefig('epsilon harvest.pdf')
+plt.show()
+plt.close()
 
-# plt.plot(x,avg1,'b')
-# plt.plot(x,avg2,'r')
-# plt.plot(x,avg3,'y')
-# plt.plot(x,avg4,'m')
-# plt.plot(x,avg6,'g')
-# plt.title("Average rewards received vs different agents")
-# plt.xlabel("Epsiodes")
-# plt.ylabel("Average rewards received")
-# plt.legend(["Pure Exploitation","Pure Exploration","Epsilon Greedy","decay-Epsilon Greedy","UCB"], loc = "lower right")
-# plt.savefig("3 Average rewards received vs different agents.pdf")
-# plt.show()
-# plt.close()
+plt.plot(x,avg4)
+plt.xlabel("Episodes")
+plt.ylabel("Average Reward")
+plt.title("decay-Epsilon Greedy: Average Reward vs Episodes")
+plt.savefig('depsilon rewards.pdf') 
+plt.show()
+plt.close()
+
+plt.plot(x,avg4h)
+plt.xlabel("Episodes")
+plt.ylabel("Average No of Harvests")
+plt.title("decay-Epsilon Greedy: Average Harvests vs Episodes")
+plt.savefig('depsilon harvest.pdf')
+plt.show()
+plt.close()
+
+plt.plot(x,avg6)
+plt.xlabel("Episodes")
+plt.ylabel("Average Reward")
+plt.title("UCB: Average Reward vs Episodes")
+plt.savefig('ucb rewards.pdf')
+plt.show()
+plt.close()
+
+plt.plot(x,avg6h)
+plt.xlabel("Episodes")
+plt.ylabel("Average No of Harvests")
+plt.title("UCB: Average Harvests vs Episodes")
+plt.savefig('UCB harvest.pdf')
+plt.show()
+plt.close()
+
+plt.plot(x,avg1,'b')
+plt.plot(x,avg2,'r')
+plt.plot(x,avg3,'y')
+plt.plot(x,avg4,'m')
+plt.plot(x,avg6,'g')
+plt.title("Average rewards received vs different agents")
+plt.xlabel("Epsiodes")
+plt.ylabel("Average rewards received")
+plt.legend(["Pure Exploitation","Pure Exploration","Epsilon Greedy","decay-Epsilon Greedy","UCB"], loc = "lower right")
+plt.savefig("3 Average rewards received vs different agents.pdf")
+plt.show()
+plt.close()
+
+plt.plot(x,avg1h,'b')
+plt.plot(x,avg2h,'r')
+plt.plot(x,avg3h,'y')
+plt.plot(x,avg4h,'m')
+plt.plot(x,avg6h,'g')
+plt.title("Average harvests done vs different agents")
+plt.xlabel("Epsiodes")
+plt.ylabel("Average harvests done")
+plt.legend(["Pure Exploitation","Pure Exploration","Epsilon Greedy","decay-Epsilon Greedy","UCB"], loc = "lower right")
+plt.savefig("3 Average harvests done vs different agents.pdf")
+plt.show()
+plt.close()

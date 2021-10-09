@@ -47,3 +47,7 @@ plt.gcf().set_size_inches(s, plt.gcf().get_size_inches()[1])
 
 plt.savefig("1.png")
 plt.show()
+
+
+a=[1.2,3.7,4.9,5.8,5.5]
+print(np.round(a,0))

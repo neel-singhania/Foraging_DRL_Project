@@ -70,7 +70,32 @@ class Foraging(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
+    def time_elapsed(self):
+        return self.elapsed_time
+
     def render(self):
         pass
 
 
+# env=Foraging()
+# env.reset()
+# env.seed(42)
+# done=False
+# score=0
+# t=0
+# while not done:
+#     state,reward,done,info=env.step(1)
+#     time=env.time_elapsed()
+#     score+=reward
+#     print('Reward:{} Time:{}'.format(reward, time))
+
+# env.reset()
+# env.seed(42)
+# done=False
+# score=0
+# t=0
+# while not done:
+#     state,reward,done,info=env.step(1)
+#     time=env.time_elapsed()
+#     score+=reward
+#     print('Reward:{} Time:{}'.format(reward, time))
