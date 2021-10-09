@@ -11,7 +11,7 @@ from foraging import Foraging
 
 
 params={}
-params["maxEpisodes"]=10
+params["maxEpisodes"]=100
 params["epsilon"]=0.3
 params["initial_epsilon"]=1.0
 params["final_epsilon"]={}
@@ -30,24 +30,27 @@ params["decay_type_decaying_epsilon"]="lin"
 params["decay_type_Softmax_exploration"]="exp"
 params["arms"]=np.arange(1,16)
 
+# random.seed(40)
 env=Foraging()
+env.seed(40)
+
 # env.reset()
 # end_state, reward, done, info = env.step(1)
 # while(reward>0):
 #     end_state, reward, done, info = env.step(1)
 # print(end_state)
 # env.reset()
-envs=[]
-for i in range(50):
-    envs.append(Foraging())
-    envs[i].seed(i+50)
+# envs=[]
+# for i in range(50):
+#     envs.append(Foraging())
+#     envs[i].seed(i+50)
 
 def PureExploitation(env,params):
     # print("PureExploitation")
-    Q = np.zeros(len(params["arms"]))
-    N = np.zeros(len(params["arms"]))
+    Q = np.zeros(len(params["arms"]+1))
+    N = np.zeros(len(params["arms"]+1))
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"]+1)))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     h = []
@@ -55,6 +58,7 @@ def PureExploitation(env,params):
     while e < params["maxEpisodes"]-1 :
         max_indices=np.where(Q==np.amax(Q))
         harvest = random.choice(max_indices[0])
+        h.append(harvest)
         # harvest=9
         done=False
         r=0
@@ -69,28 +73,30 @@ def PureExploitation(env,params):
                 end_state, reward, done, info = env.step(0)
               
         # print(r)
-        N[harvest-1] = N[harvest-1] + 1
-        Q[harvest-1] = Q[harvest-1] + (r-Q[harvest-1])/N[harvest-1]
+        N[harvest] = N[harvest] + 1
+        Q[harvest] = Q[harvest] + (r-Q[harvest])/N[harvest]
         
         
         R[e]=r
         e = e+1
         Q_est[e] = Q
         env.reset()
-    return R
+    return R,h
 
 # print(PureExploitation(env,params))
 def PureExploration(env,params):
     # print("PureExploration")
-    Q = np.zeros(len(params["arms"]))
-    N = np.zeros(len(params["arms"]))
+    Q = np.zeros(len(params["arms"]+1))
+    N = np.zeros(len(params["arms"]+1))
     e = 0
-    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"])))
+    Q_est = np.zeros((params["maxEpisodes"],len(params["arms"]+1)))
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
+    h = []
     while e < params["maxEpisodes"]-1 :
         harvest= random.choice(np.arange(1,len(Q)+1))
+        h.append(harvest)
         # print(harvest)
         done=False
         r=0
@@ -103,15 +109,15 @@ def PureExploration(env,params):
                 end_state, reward, done, info = env.step(0)
         #     print(r,reward)   
         # print(r)
-        N[harvest-1] = N[harvest-1] + 1
-        Q[harvest-1] = Q[harvest-1] + (r-Q[harvest-1])/N[harvest-1]
+        N[harvest] = N[harvest] + 1
+        Q[harvest] = Q[harvest] + (r-Q[harvest])/N[harvest]
         
         
         R[e]=r
         e = e+1
         Q_est[e] = Q
         env.reset()
-    return R
+    return R,h
 # print(PureExploration(env,params))
 def epsilonGreedy(env,params):
     # print("epsilonGreedy")
@@ -122,6 +128,7 @@ def epsilonGreedy(env,params):
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
+    h = []
     while e < params["maxEpisodes"]-1 :
         if random.random() > params["epsilon"]:
             max_indices=np.where(Q==np.amax(Q))
@@ -129,6 +136,7 @@ def epsilonGreedy(env,params):
         else :
             harvest= random.choice(np.arange(1,len(Q)+1))
         # print(harvest)
+        h.append(harvest)
         done=False
         r=0
         while not done:
@@ -148,7 +156,7 @@ def epsilonGreedy(env,params):
         e = e+1
         Q_est[e] = Q
         env.reset()
-    return R
+    return R,h
 # print(epsilonGreedy(env,params))
 def decayingEpsilonGreedy(env,params,type):
     # print("decayingEpsilonGreedy")
@@ -159,6 +167,7 @@ def decayingEpsilonGreedy(env,params,type):
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
+    h = []
     epsilon=params["initial_epsilon"]
     while e < params["maxEpisodes"]-1 :
         if random.random() > epsilon:
@@ -168,6 +177,7 @@ def decayingEpsilonGreedy(env,params,type):
         else :
             harvest= random.choice(np.arange(1,len(Q)))
         # print(harvest)
+        h.append(harvest)
         done=False
         r=0
         while not done:
@@ -191,7 +201,7 @@ def decayingEpsilonGreedy(env,params,type):
         e = e+1
         Q_est[e] = Q
         env.reset()
-    return R
+    return R,h
 # print(decayingEpsilonGreedy(env,params,"exp"))
 def UCBexploration(env,params):
     # print("UCBexploration")
@@ -202,6 +212,7 @@ def UCBexploration(env,params):
     R=np.zeros((params["maxEpisodes"])-1)
     # actions=np.zeros((params["maxEpisodes"]))
     env.reset()
+    h = []
     while e < params["maxEpisodes"] - 1:
         if e< 16:
             harvest = e+1
@@ -214,6 +225,7 @@ def UCBexploration(env,params):
             harvest = random.choice(max_indices[0])
             N[harvest] = N[harvest] + 1
         # print(harvest)
+        h.append(harvest)
         done=False
         r=0
         while not done:
@@ -231,7 +243,7 @@ def UCBexploration(env,params):
         
         
         env.reset()
-    return R
+    return R,h
 print(UCBexploration(env,params))
 
 # exploit = []

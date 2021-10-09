@@ -14,7 +14,7 @@ class Foraging(gym.Env):
 
         # Define required variables.
         self.reset()
-        self.seed()
+        # self.seed()
         self.interval_time = interval_time
         # self.decision_times = [1, 2, 3, 4]
         self.total_time = total_time*60
