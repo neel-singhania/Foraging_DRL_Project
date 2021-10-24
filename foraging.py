@@ -33,8 +33,8 @@ class Foraging(gym.Env):
             A tuple containing the next state, reward obtained, whether terminal state has been reached, and None.
         '''
         # If we harvest(1) increase state's value by 1, and for leaving(0) we clip it to 0.
-        decision_time = self.np_random.uniform(0.4,1.6)
-        # decision_time = 1
+        # decision_time = self.np_random.uniform(0.4,1.6)
+        decision_time = 1
         done=False
         reward = 0
         
@@ -55,7 +55,7 @@ class Foraging(gym.Env):
         
         # Return the next state, reward, episode end signal and an information object which could contain anything. We
         # don't have any additional info to return so we return None.
-        return self.state, reward, done, None
+        return self.state, reward, done,None
 
     def reset(self) :
         '''What to do if we reset the environment.
@@ -70,6 +70,9 @@ class Foraging(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
+    def currState(self):
+        return self.state
+
     def time_elapsed(self):
         return self.elapsed_time
 
@@ -78,6 +81,7 @@ class Foraging(gym.Env):
 
 
 # env=Foraging()
+# print(env.action_space.n)
 # env.reset()
 # env.seed(42)
 # done=False
