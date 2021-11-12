@@ -14,7 +14,7 @@ params={}
 params["noEpisodes"]=2000
 params["nodecayEpisodes"]=1000 
 params["maxHarvest"]=30
-params["maxPatches"]=24
+params["maxPatches"]=80
 
 def decayAlpha(initialValue, finalValue, maxSteps, decayType):
     step_size=np.zeros(2000)
@@ -97,7 +97,7 @@ def Qlearning(env,gamma,alpha0,epsilon0,noEpisodes):
 
 R=[]
 for i in range(50):
-    env=Foraging()
+    env=Foraging(interval_time = 3)
     env.seed(i+50)
     random.seed(i+50)
     r=Qlearning(env,1,alpha0,epsilon0,params["noEpisodes"])
@@ -109,6 +109,6 @@ plt.plot(A)
 plt.xlabel("Episodes")
 plt.ylabel("Rewards")
 plt.title("Qlearning Rewards vs Episodes")
-plt.savefig('Qlearning reward.pdf')
+plt.savefig('Qlearning reward2.pdf')
 plt.close()
 

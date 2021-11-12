@@ -7,7 +7,7 @@ from gym.utils import seeding
 
 class Foraging(gym.Env):
 
-    def __init__(self, interval_time=10, total_time=4) -> None:
+    def __init__(self, interval_time=10, total_time=4,decision_time = np.random.uniform(0.6,1.4)) -> None:
         '''Constructor for our environment. Should take any relevant parameters as arguments.
         '''
         self.action_space = spaces.Discrete(2)  # Only two actions possible, leave (0), and harvest (1).
@@ -18,6 +18,7 @@ class Foraging(gym.Env):
         self.interval_time = interval_time
         # self.decision_times = [1, 2, 3, 4]
         self.total_time = total_time*60
+        self.decision_time = decision_time
 
     def step(self, action: int):
         '''Defines what to do if an action is taken.
@@ -34,18 +35,18 @@ class Foraging(gym.Env):
         '''
         # If we harvest(1) increase state's value by 1, and for leaving(0) we clip it to 0.
         # decision_time = self.np_random.uniform(0.4,1.6)
-        decision_time = 1
+        # decision_time = 1
         done=False
         reward = 0
         
         if action == 1:
-            if self.elapsed_time + decision_time > self.total_time:
+            if self.elapsed_time + self.decision_time > self.total_time:
                 done=True
             else:
-                reward = 7 - 0.5*self.state + self.np_random.normal(0,0.025,1)
+                reward = 7 - 0.5*self.state
                 # reward = 7 - 0.5*self.state 
                 self.state += 1
-                self.elapsed_time += decision_time
+                self.elapsed_time += self.decision_time
         else:
             if self.elapsed_time + self.interval_time > self.total_time:
                 done=True
@@ -55,7 +56,7 @@ class Foraging(gym.Env):
         
         # Return the next state, reward, episode end signal and an information object which could contain anything. We
         # don't have any additional info to return so we return None.
-        return self.state, reward, done,None
+        return self.state, reward, done
 
     def reset(self) :
         '''What to do if we reset the environment.
