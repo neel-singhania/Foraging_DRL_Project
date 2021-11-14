@@ -2,7 +2,6 @@ import gym
 from gym import spaces
 import numpy as np
 import random
-import torch
 
 
 class Foraging0(gym.Env):
@@ -21,9 +20,8 @@ class Foraging0(gym.Env):
         # Define required variables.
         self.reset()
         self.interval_time = interval_time
-        self.decision_times = [1, 0.8, 1.4, 0.6]
         self.total_time = total_time*60
-
+        
     def step(self, action: int):
         '''Defines what to do if an action is taken.
 
@@ -38,7 +36,7 @@ class Foraging0(gym.Env):
             A tuple containing the next state, reward obtained, whether terminal state has been reached, and None.
         '''
         # If we harvest(1) increase state's value by 1, and for leaving(0) we clip it to 0.
-        decision_time = np.random.choice(self.decision_times,1,[0.3, 0.4, 0.2, 0.1])
+        decision_time = np.random.uniform(low=0.6, high=1.4, size=None)
         done=False
         reward = 0
         
@@ -56,6 +54,7 @@ class Foraging0(gym.Env):
             else:
                 self.count = 0
                 self.elapsed_time += self.interval_time
+        
         self.state = self.state[1:5]
         if isinstance(reward, np.ndarray):
             reward = reward[0]
@@ -65,14 +64,13 @@ class Foraging0(gym.Env):
         # don't have any additional info to return so we return None.
         return self.state, reward, done, None
 
-    def reset(self) -> None:
+    def reset(self):
         '''What to do if we reset the environment.
         '''
         # In our case simply reset the current state back to start state.
         self.state = [0, 0, 0, 0, 0, 0]
         self.count = 0
         self.elapsed_time = 0
-        self.reward_mean = 7
         return self.state, False
     
     def seed(self,seed=None) -> None:

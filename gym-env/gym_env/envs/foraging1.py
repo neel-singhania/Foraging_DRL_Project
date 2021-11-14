@@ -21,7 +21,6 @@ class Foraging1(gym.Env):
         # Define required variables.
         self.reset()
         self.interval_time = interval_time
-        self.decision_times = [1, 0.8, 1.4, 0.6]
         self.total_time = total_time*60
 
     def step(self, action: int):
@@ -38,7 +37,7 @@ class Foraging1(gym.Env):
             A tuple containing the next state, reward obtained, whether terminal state has been reached, and None.
         '''
         # If we harvest(1) increase state's value by 1, and for leaving(0) we clip it to 0.
-        decision_time = np.random.choice(self.decision_times,1,[0.3, 0.4, 0.2, 0.1])
+        decision_time = np.random.uniform(low=0.6, high=1.4, size=None)
         done=False
         reward = 0
         
