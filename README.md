@@ -6,6 +6,8 @@ The code implementation for **Multi Arm Bandit** is in the `MAB_agents.ipynb` no
 
 The code implementation for **Control Agents** is in the `ControlAgents.ipynb` notebook. The notebook implements various control agents on the environment to obtain optimal results.<br>
 
+The code implementation for **Control Agents** is in the `Rich_Patch_Poor_Patch.ipynb` notebook. The notebook implements various control agents on the tich patch poor patch environment with variable intitial rewards.<br>
+
 The code implementation for **Deep Learning Agents** is in the `deep_agents_foraging-v0.ipynb` and `deep_agents_foraging-v1.ipynb` notebook. The `deep_agents_foraging-v0.ipynb` notebook implements **DQN**, **DDQN** and **VPG** on the linear patch with constant initial reward. The `deep_agents_foraging-v1.ipynb` notebook implements **DQN**, **DDQN** and **VPG** on the linear patch with rich and poor patches which have different initial rewards.<br>
 
 
